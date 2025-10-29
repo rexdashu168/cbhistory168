@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CB可轉債發行資料查詢系統 - Rex大叔的168台股投資教室</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* 頂部標題區 */
+        .header-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px 20px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header-section .icon-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .header-section h1 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        
+        .header-section .subtitle {
+            font-size: 1em;
+            opacity: 0.95;
+            margin-bottom: 20px;
+        }
+        
+        .date-display {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.05em;
+            margin-bottom: 20px;
+        }
+        
+        .external-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .external-btn {
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .external-btn:hover {
+            background: rgba(255,255,255,0.35);
+            transform: translateY(-2px);
+        }
+        
+        .author-tag {
+            margin-top: 15px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        /* 資料統計橫幅 */
+        .stats-banner {
+            background: linear-gradient(90deg, #ffe5b4 0%, #ffd89b 100%);
+            padding: 15px 20px;
+            text-align: center;
+            color: #8b4513;
+            font-size: 1em;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* 功能選單 */
+        .function-menu-container {
+            background: #f8f9fa;
+            padding: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .function-menu {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 12px;
+            padding: 15px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .function-item {
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 15px 10px;
+            border-radius: 10px;
+            background: white;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .function-item:hover {
+            background: #f0f0f0;
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        .function-item.active {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-color: #667eea;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .function-item .icon {
+            font-size: 2.8em;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .function-item .label {
+            font-size: 0.9em;
+            color: #333;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        /* 內容區域 - 切換顯示 */
+        .content-section {
+            background: #f5f5f5;
+            min-height: calc(100vh - 400px);
+            padding: 0;
+        }
+        
+        .section-block {
+            display: none;
+            padding: 40px 20px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .section-block.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            font-size: 2em;
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        
+        .section-title .icon {
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+        
+        /* 搜尋框 */
+        .search-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .search-title {
+            font-size: 1.2em;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-input-group input {
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Microsoft JhengHei', Arial;
+        }
+        
+        .search-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .search-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .search-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* 功能說明卡片 */
+        .info-card {
+            background: white;
+            border-left: 5px solid #667eea;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 1200px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .info-card .title {
+            color: #1565c0;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .info-card .text {
+            color: #0d47a1;
+            line-height: 1.6;
+            margin: 5px 0;
+        }
+        
+        /* 表格樣式 */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin: 20px auto;
+            max-width: 1200px;
+            background: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 10px 6px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            border-right: 1px solid rgba(255,255,255,0.2);
+            line-height: 1.3;
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+        
+        /* 特定欄位寬度調整 - 修正版 */
+        th:nth-child(1) { min-width: 60px; max-width: 60px; }   /* CB代號 */
+        th:nth-child(2) { min-width: 100px; max-width: 100px; } /* CB名稱 - 加寬 */
+        th:nth-child(3) { min-width: 60px; max-width: 60px; }   /* 發行規模 */
+        th:nth-child(4) { min-width: 60px; max-width: 60px; }   /* 有無擔保 */
+        th:nth-child(5) { min-width: 60px; max-width: 60px; }   /* 股本大小 */
+        th:nth-child(6) { min-width: 60px; max-width: 60px; }   /* 發行年期 */
+        th:nth-child(7) { min-width: 70px; max-width: 70px; }   /* 承銷券商 */
+        th:nth-child(8) { min-width: 100px; max-width: 100px; } /* 產業分類 - 加寬 */
+        th:nth-child(9) { min-width: 60px; max-width: 60px; }   /* 承銷方式 */
+        th:nth-child(10) { min-width: 80px; max-width: 80px; }  /* 掛牌最高 */
+        th:nth-child(11) { min-width: 80px; max-width: 80px; }  /* 掛牌最低 */
+        
+        th:last-child { border-right: none; }
+        
+        td {
+            padding: 8px 6px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+            line-height: 1.4;
+            vertical-align: middle;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* CB名稱欄位 - 對應td */
+        td:nth-child(2) {
+            min-width: 100px;
+            max-width: 100px;
+            word-wrap: break-word;
+            word-break: break-word;
+            line-height: 1.4;
+            padding: 8px 6px;
+        }
+        
+        /* 產業分類欄位 - 對應td */
+        td:nth-child(8) {
+            min-width: 100px;
+            max-width: 100px;
+            word-wrap: break-word;
+            word-break: break-word;
+            font-size: 0.85em;
+            line-height: 1.3;
+            padding: 8px 6px;
+        }
+        
+        /* 掛牌最高欄位 - 對應td */
+        td:nth-child(10) {
+            min-width: 80px;
+            max-width: 80px;
+        }
+        
+        /* 掛牌最低欄位 - 對應td */
+        td:nth-child(11) {
+            min-width: 80px;
+            max-width: 80px;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        .highlight-green {
+            background: #c8e6c9;
+            color: #1b5e20;
+            font-weight: bold;
+        }
+        
+        .highlight-red {
+            background: #ffcdd2;
+            color: #b71c1c;
+            font-weight: bold;
+        }
+        
+        /* 擔保狀態色塊 */
+        .guarantee-yes {
+            background: #c8e6c9;
+            color: #1b5e20;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .guarantee-no {
+            background: #ffecb3;
+            color: #f57c00;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        /* 承銷方式色塊 */
+        .method-auction {
+            background: #f8bbd0;
+            color: #c2185b;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .method-placement {
+            background: #e1bee7;
+            color: #7b1fa2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        /* 統計卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-card .label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        /* 單檔查詢 - 詳細資料區塊 */
+        .detail-section {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        
+        .detail-section .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 10px 10px 0 0;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .detail-item {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .detail-item .label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .detail-item .value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .detail-item.highlight-value .value {
+            color: #667eea;
+            font-size: 1.3em;
+        }
+        
+        /* CB名稱標題區 */
+        .cb-title-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+            margin: 20px auto;
+            max-width: 1200px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .cb-title-bar .main-info {
+            flex: 1;
+        }
+        
+        .cb-title-bar .cb-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .cb-title-bar .cb-code {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .cb-title-bar .key-data {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .cb-title-bar .key-item {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .cb-title-bar .key-item .key-label {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .cb-title-bar .key-item .key-value {
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+        
+        /* 頁尾 */
+        .footer {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        
+        /* 平板和手機版 */
+        @media (max-width: 1200px) {
+            .function-menu {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-section {
+                padding: 20px 15px 15px 15px;
+            }
+            .header-section h1 {
+                font-size: 1.5em;
+            }
+            .stats-banner {
+                font-size: 0.9em;
+                padding: 12px 15px;
+            }
+            .function-menu {
+                gap: 10px;
+                padding: 12px 15px;
+            }
+            .function-item {
+                padding: 12px 8px;
+            }
+            .function-item .icon {
+                font-size: 2.2em;
+                margin-bottom: 5px;
+            }
+            .function-item .label {
+                font-size: 0.85em;
+            }
+            .section-title {
+                font-size: 1.5em;
+            }
+            
+            /* 條件篩選手機版 - 改為單欄顯示 */
+            .search-box > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+            
+            /* 所有select在手機上放大 */
+            .search-box select {
+                font-size: 16px !important;
+                padding: 12px 10px !important;
+                width: 100% !important;
+            }
+            
+            /* 功能說明卡片手機版 */
+            .info-card,
+            div[style*="linear-gradient"][style*="667eea"] {
+                margin: 20px 15px !important;
+                padding: 20px !important;
+                font-size: 0.95em !important;
+            }
+            
+            /* 搜尋框手機版 */
+            .search-box {
+                margin: 20px 15px !important;
+                padding: 20px !important;
+            }
+            
+            /* 批次查詢輸入區手機版 */
+            #batchInput {
+                min-height: 150px !important;
+            }
+            
+            /* 表格手機版 */
+            .table-wrapper {
+                margin: 20px 10px !important;
+                overflow-x: auto !important;
+            }
+            
+            table {
+                font-size: 0.85em !important;
+            }
+            
+            th, td {
+                padding: 8px 6px !important;
+                white-space: nowrap !important;
+            }
+            
+            /* 單檔查詢手機版 */
+            #singleQuery {
+                font-size: 16px !important;
+            }
+            
+            /* 按鈕在手機上加大 */
+
+            
+            /* 統計卡片手機版 */
+            #statsResult > div {
+                grid-template-columns: 1fr !important;
+            }
+            
+/* 時間軸按鈕手機版 */
+            #quickTimeButtons {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* 自訂時間區間手機版 */
+            div[style*="grid-template-columns: 1fr 1fr auto"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            button {
+                font-size: 16px !important;
+                min-height: 44px !important;
+            }
+        }
+    </style>
+    </head>
+<body>
+    <!-- 載入提示 -->
+    <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(102, 126, 234, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white;">
+        <div style="font-size: 3em; margin-bottom: 20px;">📊</div>
+        <div id="loadingText" style="font-size: 1.5em; margin-bottom: 10px;">正在連接GitHub...</div>
+        <div id="loadingDetail" style="font-size: 0.9em; opacity: 0.8; margin-bottom: 30px;">請稍候</div>
+        <div style="width: 200px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden;">
+            <div style="width: 100%; height: 100%; background: white; animation: loading 1.5s ease-in-out infinite;"></div>
+        </div>
+    </div>
+    <style>
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+
+    <!-- 頂部標題區 -->
+    <div class="header-section">
+        <div class="icon-title">🎯</div>
+        <h1>CB可轉債發行資料查詢系統</h1>
+        <div class="subtitle">發行條件 | 轉換價格 | 掛牌表現 | 贖回賣回條件</div>
+        
+        <div class="date-display">
+            📅 <span id="currentDate"></span>
+        </div>
+        
+        <div class="external-links">
+            <a href="https://vocus.cc/user/@rexdashu168" target="_blank" class="external-btn">📝 方格子部落格</a>
+            <a href="https://www.youtube.com/@RexCB168" target="_blank" class="external-btn">🎬 YouTube頻道</a>
+        </div>
+        
+        <div class="author-tag">by Rex大叔的168台股投資教室</div>
+    </div>
+
+    <!-- 資料統計橫幅 -->
+    <div class="stats-banner" id="statsBanner">
+        📊 資料載入中...
+    </div>
+
+    <!-- 功能選單 -->
+    <div class="function-menu-container">
+        <div class="function-menu">
+            <div class="function-item active" onclick="switchSection('section1', 0)">
+                <div class="icon">🔍</div>
+                <div class="label">單檔查詢</div>
+            </div>
+            <div class="function-item" onclick="switchSection('section2', 1)">
+                <div class="icon">📊</div>
+                <div class="label">批次查詢</div>
+            </div>
+            <div class="function-item" onclick="switchSection('section3', 2)">
+                <div class="icon">⚙️</div>
+                <div class="label">條件篩選</div>
+            </div>
+            <div class="function-item" onclick="switchSection('section4', 3)">
+                <div class="icon">📈</div>
+                <div class="label">掛牌表現</div>
+            </div>
+            <div class="function-item" onclick="switchSection('section5', 4)">
+                <div class="icon">💰</div>
+                <div class="label">賣回查詢</div>
+            </div>
+            <div class="function-item" onclick="switchSection('section6', 5)">
+                <div class="icon">🏢</div>
+                <div class="label">同公司比較</div>
+            </div>
+            <div class="function-item" onclick="switchSection('section7', 6)">
+                <div class="icon">📅</div>
+                <div class="label">時間軸查詢</div>
+            </div>
+            <div class="function-item" onclick="switchSection('section8', 7)">
+                <div class="icon">📊</div>
+                <div class="label">市場統計</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 統一查詢框 -->
+    <div style="max-width: 1200px; margin: -10px auto 20px; padding: 0 20px;">
+        <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="searchInput1" placeholder="🔍 請輸入CB代號或股票代號 (例如: 30193 或 3019)" 
+                    style="flex: 1; padding: 15px; font-size: 1.1em; border: 2px solid #ddd; border-radius: 8px;"
+                    onkeypress="if(event.key==='Enter') searchCB()">
+                <button onclick="searchCB()" 
+                    style="padding: 15px 40px; font-size: 1.1em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap;">
+                    查詢
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 內容區域 - 切換顯示 -->
+    <div class="content-section">
+        <!-- 1. 單檔查詢 -->
+        <div id="section1" class="section-block active">
+            <div class="section-title">
+                <span class="icon">🔍</span>單檔查詢
+            </div>
+            
+            <!-- 功能說明 -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 25px; margin: 30px auto; max-width: 800px; color: white; box-shadow: 0 8px 20px rgba(102,126,234,0.3);">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="font-size: 2em; margin-right: 15px;">💡</div>
+                    <div style="font-size: 1.3em; font-weight: 600;">功能說明</div>
+                </div>
+                <div style="font-size: 1.05em; line-height: 1.8; opacity: 0.95;">
+                    <strong>查詢方式：</strong>輸入CB代號或股票代號進行查詢<br>
+                    <strong>使用範例：</strong>輸入「30193」查詢亞光三CB，或輸入「3019」查詢亞光所有CB
+                </div>
+            </div>
+            
+            <!-- 查詢輸入區 -->
+            <div style="background: white; border: 3px solid #667eea; border-radius: 20px; padding: 40px; margin: 30px auto; max-width: 800px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <span style="font-size: 1.8em; margin-right: 15px;">🔍</span>
+                    <span style="font-size: 1.3em; font-weight: 600; color: #667eea;">輸入代號查詢</span>
+                </div>
+                
+                <div style="display: flex; gap: 15px; align-items: stretch;">
+                    <input 
+                        type="text" 
+                        id="singleQuery" 
+                        placeholder="例如: 30193, 3019, 80701" 
+                        style="flex: 1; padding: 18px 25px; font-size: 1.1em; border: 2px solid #e0e0e0; border-radius: 12px; transition: all 0.3s;"
+                        onkeypress="if(event.key==='Enter') document.getElementById('singleQueryBtn').click()"
+                    >
+                    <button 
+                        id="singleQueryBtn"
+                        onclick="singleQuery()" 
+                        style="padding: 18px 45px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(102,126,234,0.4);"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102,126,234,0.5)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102,126,234,0.4)'"
+                    >
+                        查詢
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 查詢結果 -->
+            <div id="result1" style="margin: 20px auto; max-width: 1200px;">
+                <div style="text-align:center; padding: 80px 20px; color:#999;">
+                    <div style="font-size: 2.5em; margin-bottom: 15px;">👆</div>
+                    <div style="font-size: 1.1em;">請在上方輸入代號開始查詢</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 2. 批次查詢 -->
+        <div id="section2" class="section-block">
+            <div class="section-title">
+                <span class="icon">📊</span>批次查詢
+            </div>
+            
+            <!-- 功能說明 -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 25px; margin: 30px auto; max-width: 1000px; color: white; box-shadow: 0 8px 20px rgba(102,126,234,0.3);">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="font-size: 2em; margin-right: 15px;">💡</div>
+                    <div style="font-size: 1.3em; font-weight: 600;">功能說明</div>
+                </div>
+                <div style="font-size: 1.05em; line-height: 1.8; opacity: 0.95;">
+                    <strong>查詢方式：</strong>輸入多個CB代號，每行一個代號<br>
+                    <strong>使用範例：</strong>輸入「24762」按Enter，輸入「33901」按Enter，輸入「80701」，最後按「查詢」按鈕
+                </div>
+            </div>
+            
+            <!-- 批次輸入區 -->
+            <div style="background: white; border: 3px solid #667eea; border-radius: 20px; padding: 40px; margin: 30px auto; max-width: 1000px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <span style="font-size: 1.8em; margin-right: 15px;">📊</span>
+                    <span style="font-size: 1.3em; font-weight: 600; color: #667eea;">批次輸入CB代號</span>
+                </div>
+                
+                <div style="display: flex; gap: 20px;">
+                    <!-- 輸入區 -->
+                    <div style="flex: 1;">
+                        <textarea 
+                            id="batchInput" 
+                            placeholder="請輸入CB代號，每行一個&#10;例如:&#10;24762&#10;33901&#10;80701" 
+                            style="width: 100%; min-height: 200px; padding: 15px; font-size: 1.1em; border: 2px solid #e0e0e0; border-radius: 12px; font-family: 'Courier New', monospace; line-height: 1.6; resize: vertical;"
+                        ></textarea>
+                        <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                            💡 小提示：每行輸入一個代號，按Enter換行
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按鈕區 -->
+                    <div style="display: flex; flex-direction: column; gap: 15px; min-width: 120px;">
+                        <button 
+                            onclick="batchSearch()" 
+                            style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(102,126,234,0.4);"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102,126,234,0.5)'"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102,126,234,0.4)'"
+                        >
+                            🔍<br>查詢
+                        </button>
+                        
+                        <button 
+                            onclick="document.getElementById('batchInput').value=''; document.getElementById('batchTable').innerHTML='<tr><td colspan=\'9\' style=\'text-align:center; padding:40px; color:#999;\'>請輸入CB代號進行查詢</td></tr>'"
+                            style="padding: 15px; background: white; color: #667eea; border: 2px solid #667eea; border-radius: 12px; font-size: 1em; font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                            onmouseover="this.style.background='#f5f5f5'"
+                            onmouseout="this.style.background='white'"
+                        >
+                            🗑️<br>清除
+                        </button>
+                        
+                        <div style="flex: 1;"></div>
+                        
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">已輸入</div>
+                            <div id="batchCount" style="font-size: 1.8em; font-weight: 700; color: #667eea;">0</div>
+                            <div style="font-size: 0.85em; color: #666;">筆代號</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CB<br>代號</th>
+                            <th>CB<br>名稱</th>
+                            <th>發行<br>規模</th>
+                            <th>有無<br>擔保</th>
+                            <th>股本<br>大小</th>
+                            <th>發行<br>年期</th>
+                            <th>發行<br>券商</th>
+                            <th>產業<br>分類</th>
+                            <th>承銷<br>方式</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batchTable">
+                        <tr><td colspan="9">請輸入CB代號進行查詢</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 3. 條件篩選 -->
+        <div id="section3" class="section-block">
+            <div class="section-title">
+                <span class="icon">⚙️</span>條件篩選
+            </div>
+            
+            <div class="info-card">
+                <div class="title">💡 功能說明</div>
+                <div class="text">依擔保、年期、規模條件篩選CB</div>
+            </div>
+            
+            <div class="search-box">
+                <div class="search-title">⚙️ 設定篩選條件</div>
+                
+                <!-- 第一排：擔保、年期、規模(六分位) -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px;">
+                    <select id="filterGuarantee" style="padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                        <option value="">擔保(全部)</option>
+                        <option value="有擔保">有擔保</option>
+                        <option value="無擔保">無擔保</option>
+                    </select>
+                    <select id="filterYear" style="padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                        <option value="">年期(全部)</option>
+                        <option value="2.5">2.5年</option>
+                        <option value="3">3年</option>
+                        <option value="5">5年</option>
+                    </select>
+                    <select id="filterSize" style="padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                        <option value="">規模(全部)</option>
+                        <option value="1">1-3億</option>
+                        <option value="2">3-5億</option>
+                        <option value="3">5-8億</option>
+                        <option value="4">8-10億</option>
+                        <option value="5">10億以上</option>
+                    </select>
+                </div>
+                
+                <!-- 第二排：股本(六分位)、轉換價格(六分位)、信用評等 -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px;">
+                    <select id="filterCapital" style="padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                        <option value="">股本(全部)</option>
+                        <option value="1">7-10億</option>
+                        <option value="2">10-15億</option>
+                        <option value="3">15-30億</option>
+                        <option value="4">30-60億</option>
+                        <option value="5">60億以上</option>
+                    </select>
+                    <select id="filterConvPrice" style="padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                        <option value="">轉換價格(全部)</option>
+                        <option value="1">10-15元</option>
+                        <option value="2">15-20元</option>
+                        <option value="3">20-30元</option>
+                        <option value="4">30-40元</option>
+                        <option value="5">40-60元</option>
+                        <option value="6">60元以上</option>
+                    </select>
+                    <select id="filterRating" style="padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                        <option value="">信用評等(全部)</option>
+                        <option value="有">有評等</option>
+                        <option value="無">無評等</option>
+                    </select>
+                </div>
+                
+                <!-- 第三排：承銷商、產業、承銷方式 -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
+                    <select id="filterUnderwriter" style="padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                        <option value="">承銷券商(全部)</option>
+                        <option value="中信證券">中信證券</option>
+                        <option value="元大證券">元大證券</option>
+                        <option value="兆豐證券">兆豐證券</option>
+                        <option value="凱基證券">凱基證券</option>
+                        <option value="台新證券">台新證券</option>
+                        <option value="合庫證券">合庫證券</option>
+                        <option value="富邦證券">富邦證券</option>
+                        <option value="永豐金證">永豐金證</option>
+                        <option value="福邦證券">福邦證券</option>
+                        <option value="華南永昌">華南永昌</option>
+                    </select>
+                    <select id="filterIndustry" style="padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                        <option value="">產業分類(全部)</option>
+                        <option value="光電業">光電業</option>
+                        <option value="其他業">其他業</option>
+                        <option value="其他電子業">其他電子業</option>
+                        <option value="半導體產業">半導體產業</option>
+                        <option value="建材營造業">建材營造業</option>
+                        <option value="紡織纖維">紡織纖維</option>
+                        <option value="貿易百貨業">貿易百貨業</option>
+                        <option value="通信網路業">通信網路業</option>
+                        <option value="金控業">金控業</option>
+                        <option value="銀行業">銀行業</option>
+                        <option value="鋼鐵工業">鋼鐵工業</option>
+                        <option value="電子通路業">電子通路業</option>
+                        <option value="電子零組件業">電子零組件業</option>
+                        <option value="電機機械">電機機械</option>
+                        <option value="電腦及週邊設備業">電腦及週邊設備業</option>
+                    </select>
+                    <select id="filterMethod" style="padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                        <option value="">承銷方式(全部)</option>
+                        <option value="詢圈">詢圈</option>
+                    </select>
+                </div>
+                
+                <button class="search-btn" onclick="filterSearch()" style="width: 100%;">🔍 篩選</button>
+            </div>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CB<br>代號</th>
+                            <th>CB<br>名稱</th>
+                            <th>發行<br>規模</th>
+                            <th>有無<br>擔保</th>
+                            <th>股本<br>大小</th>
+                            <th>轉換<br>價格</th>
+                            <th>發行<br>年期</th>
+                            <th>承銷<br>券商</th>
+                            <th>產業<br>分類</th>
+                            <th>承銷<br>方式</th>
+                            <th>掛牌<br>最高</th>
+                            <th>掛牌<br>最低</th>
+                        </tr>
+                    </thead>
+                    <tbody id="filterTable">
+                        <tr><td colspan="12">請設定篩選條件</td></tr>
+                    </tbody>
+                    <tfoot id="filterStats" style="display: none;">
+                        <tr style="background: #fff3e0; font-weight: bold;">
+                            <td colspan="2">均值</td>
+                            <td id="avgSize">-</td>
+                            <td>-</td>
+                            <td id="avgCapital" style="font-size: 0.85em;">-</td>
+                            <td id="avgConvPrice">-</td>
+                            <td id="avgYear">-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td id="avgHigh">-</td>
+                            <td id="avgLow">-</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 4. 掛牌表現 -->
+        <div id="section4" class="section-block">
+            <div class="section-title">
+                <span class="icon">📈</span>掛牌表現統計
+            </div>
+            
+            <div class="info-card">
+                <div class="title">💡 功能說明</div>
+                <div class="text">顯示所有CB的掛牌後表現統計及排行榜</div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">平均最高價</div>
+                    <div class="value" id="avgHigh">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">平均最低價</div>
+                    <div class="value" id="avgLow">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">平均振幅</div>
+                    <div class="value" id="avgSwing">-</div>
+                </div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>CB<br>代號</th>
+                            <th>CB<br>名稱</th>
+                            <th>承銷<br>方式</th>
+                            <th>產業<br>分類</th>
+                            <th>掛牌<br>最高</th>
+                            <th>掛牌<br>最低</th>
+                            <th>價格<br>振幅</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topTable"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 5. 賣回查詢 -->
+        <div id="section5" class="section-block">
+            <div class="section-title">
+                <span class="icon">💰</span>賣回條件查詢
+            </div>
+            
+            <div class="info-card">
+                <div class="title">💡 功能說明</div>
+                <div class="text">顯示所有CB的賣回日期、價格、利率資訊</div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CB<br>代號</th>
+                            <th>CB<br>名稱</th>
+                            <th>承銷<br>方式</th>
+                            <th>賣回<br>日期1</th>
+                            <th>賣回<br>價格1</th>
+                            <th>利率<br>(%)</th>
+                            <th>賣回<br>日期2</th>
+                            <th>賣回<br>價格2</th>
+                            <th>利率<br>(%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="putbackTable"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 6. 同公司比較 -->
+        <div id="section6" class="section-block">
+            <div class="section-title">
+                <span class="icon">🏢</span>同公司比較
+            </div>
+            
+            <div class="info-card">
+                <div class="title">💡 功能說明</div>
+                <div class="text">查詢方式:輸入股票代號,顯示該公司所有發行的CB</div>
+                <div class="text">使用範例:輸入「8070」查詢長榮航所有CB的比較</div>
+            </div>
+            
+
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CB<br>代號</th>
+                            <th>CB<br>名稱</th>
+                            <th>發行<br>規模</th>
+                            <th>有無<br>擔保</th>
+                            <th>發行<br>年期</th>
+                            <th>轉換<br>價格</th>
+                            <th>承銷<br>方式</th>
+                            <th>掛牌<br>最高</th>
+                            <th>掛牌<br>最低</th>
+                        </tr>
+                    </thead>
+                    <tbody id="companyTable">
+                        <tr><td colspan="9">請輸入股票代號進行查詢</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 7. 時間軸查詢 -->
+        <div id="section7" class="section-block">
+            <div class="section-title">
+                <span class="icon">📅</span>時間軸查詢
+            </div>
+            
+            <!-- 功能說明 -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 25px; margin: 30px auto; max-width: 1000px; color: white; box-shadow: 0 8px 20px rgba(102,126,234,0.3);">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="font-size: 2em; margin-right: 15px;">💡</div>
+                    <div style="font-size: 1.3em; font-weight: 600;">功能說明</div>
+                </div>
+                <div style="font-size: 1.05em; line-height: 1.8; opacity: 0.95;">
+                    <strong>快速查詢：</strong>點選時間區間按鈕，自動載入該期間所有CB<br>
+                    <strong>自訂區間：</strong>輸入起訖日期，查詢特定時間範圍
+                </div>
+            </div>
+            
+            <!-- 快速時間區間 -->
+            <div style="background: white; border: 3px solid #667eea; border-radius: 20px; padding: 30px; margin: 30px auto; max-width: 1000px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <span style="font-size: 1.8em; margin-right: 15px;">⚡</span>
+                    <span style="font-size: 1.3em; font-weight: 600; color: #667eea;">快速時間區間</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;" id="quickTimeButtons">
+                    <button onclick="quickTimeSearch(1)" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer;">最近1個月</button>
+                    <button onclick="quickTimeSearch(3)" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer;">最近3個月</button>
+                    <button onclick="quickTimeSearch(6)" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer;">最近半年</button>
+                    <button onclick="quickTimeSearch(12)" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer;">最近1年</button>
+                    <button onclick="quickTimeSearch(24)" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer;">最近2年</button>
+                    <button onclick="quickTimeSearch(36)" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer;">最近3年</button>
+                </div>
+            </div>
+            
+            <!-- 自訂時間區間 -->
+            <div style="background: white; border: 3px solid #667eea; border-radius: 20px; padding: 30px; margin: 30px auto; max-width: 1000px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <span style="font-size: 1.8em; margin-right: 15px;">📅</span>
+                    <span style="font-size: 1.3em; font-weight: 600; color: #667eea;">自訂時間區間</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; color: #666; font-weight: 600;">起始日期</label>
+                        <input type="date" id="startDate" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; color: #666; font-weight: 600;">結束日期</label>
+                        <input type="date" id="endDate" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em;">
+                    </div>
+                    <button onclick="customTimeSearch()" style="padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 1.1em; font-weight: 600; cursor: pointer;">🔍 查詢</button>
+                </div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>掛牌<br>日期</th>
+                            <th>CB<br>代號</th>
+                            <th>CB<br>名稱</th>
+                            <th>股票<br>代號</th>
+                            <th>發行<br>規模</th>
+                            <th>承銷<br>方式</th>
+                            <th>產業<br>分類</th>
+                            <th>掛牌<br>最高</th>
+                            <th>掛牌<br>最低</th>
+                        </tr>
+                    </thead>
+                    <tbody id="yearTable">
+                        <tr><td colspan="9">請選擇年份進行查詢</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 8. 市場統計 -->
+        <div id="section8" class="section-block">
+            <div class="section-title">
+                <span class="icon">📊</span>市場統計
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 25px; margin: 30px auto; max-width: 1200px; color: white; box-shadow: 0 8px 20px rgba(102,126,234,0.3);">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="font-size: 2em; margin-right: 15px;">💡</div>
+                    <div style="font-size: 1.3em; font-weight: 600;">功能說明</div>
+                </div>
+                <div style="font-size: 1.05em; line-height: 1.8; opacity: 0.95;">
+                    <strong>統計維度：</strong>規模、股本、轉換價、券商、產業<br>
+                    <strong>交叉分析：</strong>可選擇擔保類型、承銷方式進行交叉比對<br>
+                    <strong>排序規則：</strong>依掛牌最高表現，由好到差排序
+                </div>
+            </div>
+            
+            <!-- 統計選項 -->
+            <div style="background: white; border: 3px solid #667eea; border-radius: 20px; padding: 30px; margin: 30px auto; max-width: 1200px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; margin-bottom: 25px;">
+                    <span style="font-size: 1.8em; margin-right: 15px;">⚙️</span>
+                    <span style="font-size: 1.3em; font-weight: 600; color: #667eea;">統計設定</span>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #666;">📊 選擇統計維度</label>
+                    <select id="statDimension" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1.1em;">
+                        <option value="size">發行規模（6級分類）</option>
+                        <option value="capital">股本大小（6級分類）</option>
+                        <option value="convPrice">轉換價格（6級分類）</option>
+                        <option value="underwriter">承銷券商（TOP10）</option>
+                        <option value="industry">產業分類（TOP10）</option>
+                    </select>
+                    <div style="margin-top: 10px; padding: 12px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em; color: #666;">
+                        💡 將自動生成：全部、有擔保、無擔保、競拍、詢圈及其交叉組合的完整統計
+                    </div>
+                </div>
+                
+                <button onclick="generateStats()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 1.2em; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(102,126,234,0.4);">
+                    🔍 生成統計報表
+                </button>
+            </div>
+            
+            <!-- 統計結果 -->
+            <div id="statsResult" style="margin: 30px auto; max-width: 1200px;"></div>
+        </div>
+        
+        
+        // 市場統計函數
+        function generateStats() {
+            const dimension = document.getElementById('statDimension').value;
+            
+            // 定義所有組合
+            const combinations = [
+                {name: '全部', guarantee: null, method: null},
+                {name: '有擔保', guarantee: '有擔保', method: null},
+                {name: '無擔保', guarantee: '無擔保', method: null},
+                {name: '競拍', guarantee: null, method: '競拍'},
+                {name: '詢圈', guarantee: null, method: '詢圈'},
+                {name: '有擔保+競拍', guarantee: '有擔保', method: '競拍'},
+                {name: '有擔保+詢圈', guarantee: '有擔保', method: '詢圈'},
+                {name: '無擔保+競拍', guarantee: '無擔保', method: '競拍'},
+                {name: '無擔保+詢圈', guarantee: '無擔保', method: '詢圈'}
+            ];
+            
+            let html = '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">';
+            
+            combinations.forEach(combo => {
+                html += generateSingleStat(dimension, combo.guarantee, combo.method, combo.name);
+            });
+            
+            html += '</div>';
+            document.getElementById('statsResult').innerHTML = html;
+        }
+        
+        function generateSingleStat(dimension, guarantee, method, title) {
+            let data = mockData.filter(d => {
+                if (guarantee && d.guarantee !== guarantee) return false;
+                if (method && d.method !== method) return false;
+                return true;
+            });
+            
+            if (data.length === 0) {
+                return `<div style="background: #f8f9fa; border-radius: 12px; padding: 20px;">
+                    <h4 style="color: #999; margin-bottom: 10px;">${title}</h4>
+                    <p style="color: #999;">無資料</p>
+                </div>`;
+            }
+            
+            let stats = [];
+            
+            if (dimension === 'size') {
+                const ranges = [
+                    {name: '≤2億', min: 0, max: 2},
+                    {name: '2-5億', min: 2, max: 5},
+                    {name: '5-10億', min: 5, max: 10},
+                    {name: '10-15億', min: 10, max: 15},
+                    {name: '15-20億', min: 15, max: 20},
+                    {name: '≥20億', min: 20, max: 9999}
+                ];
+                stats = ranges.map(r => calculateStats(data.filter(d => d.size > r.min && d.size <= r.max), r.name))
+                    .filter(s => s.count > 0);
+            } else if (dimension === 'capital') {
+                const ranges = [
+                    {name: '≤3億', min: 0, max: 3},
+                    {name: '3-6億', min: 3, max: 6},
+                    {name: '6-10億', min: 6, max: 10},
+                    {name: '10-15億', min: 10, max: 15},
+                    {name: '15-20億', min: 15, max: 20},
+                    {name: '≥20億', min: 20, max: 9999}
+                ];
+                stats = ranges.map(r => {
+                    const filtered = data.filter(d => {
+                        const cap = parseFloat(d.capital);
+                        return cap > r.min && cap <= r.max;
+                    });
+                    return calculateStats(filtered, r.name);
+                }).filter(s => s.count > 0);
+            } else if (dimension === 'convPrice') {
+                const ranges = [
+                    {name: '≤20元', min: 0, max: 20},
+                    {name: '20-50元', min: 20, max: 50},
+                    {name: '50-100元', min: 50, max: 100},
+                    {name: '100-150元', min: 100, max: 150},
+                    {name: '150-200元', min: 150, max: 200},
+                    {name: '≥200元', min: 200, max: 9999}
+                ];
+                stats = ranges.map(r => calculateStats(data.filter(d => d.convPrice > r.min && d.convPrice <= r.max), r.name))
+                    .filter(s => s.count > 0);
+            } else if (dimension === 'underwriter') {
+                const groups = {};
+                data.forEach(d => {
+                    if (!groups[d.underwriter]) groups[d.underwriter] = [];
+                    groups[d.underwriter].push(d);
+                });
+                stats = Object.keys(groups).map(name => calculateStats(groups[name], name))
+                    .sort((a, b) => b.avgHigh - a.avgHigh)
+                    .slice(0, 10);
+            } else if (dimension === 'industry') {
+                const groups = {};
+                data.forEach(d => {
+                    if (!groups[d.industry]) groups[d.industry] = [];
+                    groups[d.industry].push(d);
+                });
+                stats = Object.keys(groups).map(name => calculateStats(groups[name], name))
+                    .sort((a, b) => b.avgHigh - a.avgHigh)
+                    .slice(0, 10);
+            }
+            
+            stats.sort((a, b) => b.avgHigh - a.avgHigh);
+            
+            return formatStatCard(stats, title);
+        }
+        
+        function calculateStats(items, name) {
+            if (items.length === 0) return {name, count: 0, avgHigh: 0, avgLow: 0};
+            
+            const avgHigh = items.reduce((s, d) => s + d.high, 0) / items.length;
+            const avgLow = items.reduce((s, d) => s + d.low, 0) / items.length;
+            
+            return {
+                name: name,
+                count: items.length,
+                avgHigh: avgHigh,
+                avgLow: avgLow,
+                swing: avgHigh - avgLow
+            };
+        }
+        
+        function formatStatCard(stats, title) {
+            let html = `
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h4 style="color: #667eea; margin-bottom: 15px; font-size: 1.1em; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                        ${title}
+                    </h4>
+                    <table style="width: 100%; font-size: 0.85em;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid #e0e0e0;">
+                                <th style="text-align: left; padding: 8px; font-size: 0.9em;">名稱</th>
+                                <th style="text-align: right; padding: 8px; font-size: 0.9em;">數量</th>
+                                <th style="text-align: right; padding: 8px; font-size: 0.9em;">最高</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            stats.slice(0, 6).forEach((s, idx) => {
+                const bg = idx % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                html += `
+                    <tr style="background: ${bg};">
+                        <td style="padding: 8px; font-weight: 600;">${s.name}</td>
+                        <td style="text-align: right; padding: 8px;">${s.count}</td>
+                        <td style="text-align: right; padding: 8px; color: #d32f2f; font-weight: 600;">${s.avgHigh.toFixed(2)}</td>
+                    </tr>`;
+            });
+            
+            html += `</tbody></table></div>`;
+            return html;
+        }
+        
+        function generateCompareStats(dimension, compareType, filter) {
+            const types = compareType === 'guarantee' ? 
+                ['有擔保', '無擔保'] : ['競拍', '詢圈'];
+            
+            let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">';
+            
+            types.forEach(type => {
+                const typeFilter = compareType === 'guarantee' ? type : null;
+                const methodFilter = compareType === 'method' ? type : null;
+                html += generateSingleStats(dimension, typeFilter, methodFilter);
+            });
+            
+            html += '</div>';
+            return html;
+        }
+        
+
